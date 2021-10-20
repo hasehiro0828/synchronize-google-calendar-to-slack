@@ -1,6 +1,7 @@
+/* eslint-disable import/extensions */
 /* eslint-disable no-undef */
 
-// eslint-disable-next-line import/extensions
+import { PropertiesServiceWrapper } from "./propertiesService";
 import SlackService from "./slackService";
 
 // eslint-disable-next-line no-unused-vars
@@ -28,6 +29,6 @@ const main = (): void => {
   const statusText = getStatusText(properties.calendarId);
   Logger.log(`statusText：${statusText}`);
 
-  const slackService = new SlackService(properties.slackToken);
+  const slackService = new SlackService(properties.tokens);
   slackService.setDisplayName(`${properties.baseDisplayName}（${statusText} 休暇）`);
 };

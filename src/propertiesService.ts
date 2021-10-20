@@ -1,11 +1,17 @@
 /* eslint-disable import/prefer-default-export */
 /* eslint-disable no-undef */
 
+export interface Token {
+  workspaceName: string;
+  token: string;
+}
+
 interface ScriptProperties {
   calendarId: string;
-  slackToken: string;
   baseDisplayName: string;
+  tokens: Token[];
 }
+
 type NullableProperties = {
   [P in keyof ScriptProperties]: ScriptProperties[P] | null;
 };
@@ -17,8 +23,12 @@ const setProperties = (): void => {
   };
 
   setProperty("calendarId", "");
-  setProperty("slackToken", "");
   setProperty("baseDisplayName", "");
+
+  const tokens: Token[] = [
+    { workspaceName: "workspaceName", token: "token-token-token-token-token-token-token-token" },
+  ];
+  setProperty("tokens", JSON.stringify(tokens));
 };
 
 // eslint-disable-next-line no-unused-vars
@@ -28,14 +38,15 @@ const showProperties = (): void => {
 };
 
 // eslint-disable-next-line no-unused-vars
-namespace PropertiesServiceWrapper {
+export namespace PropertiesServiceWrapper {
   export const getProperties = (): ScriptProperties | undefined => {
     const getProperty = (key: keyof ScriptProperties): string | null =>
       PropertiesService.getScriptProperties().getProperty(key);
 
+    const tokens = getProperty("tokens");
     const nullableProperties: NullableProperties = {
       calendarId: getProperty("calendarId"),
-      slackToken: getProperty("slackToken"),
+      tokens: tokens ? JSON.parse(tokens) : null,
       baseDisplayName: getProperty("baseDisplayName"),
     };
 
@@ -50,7 +61,7 @@ namespace PropertiesServiceWrapper {
     if (notDefinedProperties.length !== 0) return undefined;
     return {
       calendarId: nullableProperties.calendarId as string,
-      slackToken: nullableProperties.slackToken as string,
+      tokens: nullableProperties.tokens as Token[],
       baseDisplayName: nullableProperties.baseDisplayName as string,
     };
   };
