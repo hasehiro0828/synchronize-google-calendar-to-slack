@@ -27,6 +27,7 @@ const main = (): void => {
   if (typeof properties === "undefined") return;
 
   const statusText = getStatusText(properties.calendarId);
+  if (statusText === "") return;
   Logger.log(`statusText：${statusText}`);
 
   const slackService = new SlackService(properties.tokens);
