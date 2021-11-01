@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "push": "clasp push"
+  },
   "devDependencies": {
     "@types/google-apps-script": "^1.0.37",
     "@types/node": "^16.7.0",
