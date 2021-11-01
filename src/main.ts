@@ -1,6 +1,7 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-undef */
 
+import { OriginalUtilities } from "./originalUtilities";
 import { PropertiesServiceWrapper } from "./propertiesService";
 import SlackService from "./slackService";
 
@@ -10,7 +11,10 @@ const main = (): void => {
     const now = new Date();
 
     const calendar = CalendarApp.getCalendarById(calendarId);
-    const events = calendar.getEvents(new Date(now.getTime()), new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000));
+    const events = calendar.getEvents(
+      new Date(now.getTime()),
+      new Date(now.getTime() + OriginalUtilities.dayToMilliseconds(7))
+    );
 
     const holidays = events
       .filter((event) => event.isAllDayEvent())
