@@ -34,6 +34,6 @@ const main = (): void => {
   const statusText = holidays !== "" ? `（${holidays} 休暇）` : "";
   Logger.log(`holidays：${statusText}`);
 
-  const slackService = new SlackService(properties.tokens);
+  const slackService = new SlackService(properties.tokens, properties.botToken);
   slackService.setDisplayName(`${properties.baseDisplayName}${statusText}`);
 };

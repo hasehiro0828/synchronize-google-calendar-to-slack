@@ -9,9 +9,17 @@ interface Profile {
   display_name: string;
 }
 
-interface SetDisplayNamePayload {
+interface BasePayload {
   token: string;
+}
+
+interface SetDisplayNamePayload extends BasePayload {
   profile: string;
+}
+
+interface ChatPostMessagePayload extends BasePayload {
+  channel: string;
+  text: string;
 }
 
 class SlackService {
@@ -19,8 +27,11 @@ class SlackService {
 
   private tokens: Token[];
 
-  constructor(tokens: Token[]) {
+  private botToken: Token;
+
+  constructor(tokens: Token[], botToken: Token) {
     this.tokens = tokens;
+    this.botToken = botToken;
   }
 
   setDisplayName(displayName: string): void {
@@ -37,6 +48,19 @@ class SlackService {
       const response = UrlFetchApp.fetch(this.baseUrl + path, { method: "post", payload });
       Logger.log(`${token.workspaceName}：${path}\n${response}`);
     });
+  }
+
+  chatPostMessage(text: string, channel: string): void {
+    const path = "/chat.postMessage";
+
+    const payload: ChatPostMessagePayload = {
+      token: this.botToken.token,
+      channel,
+      text,
+    };
+
+    const response = UrlFetchApp.fetch(this.baseUrl + path, { method: "post", payload });
+    Logger.log(`${this.botToken.workspaceName}：${path}\n${response}`);
   }
 }
 export default SlackService;
