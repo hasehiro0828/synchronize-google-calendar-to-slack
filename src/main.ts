@@ -1,6 +1,7 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-undef */
 
+import { CalendarService } from "./calendarService";
 import { OriginalUtilities } from "./originalUtilities";
 import { PropertiesServiceWrapper } from "./propertiesService";
 import SlackService from "./slackService";
@@ -36,4 +37,26 @@ const main = (): void => {
 
   const slackService = new SlackService(properties.tokens, properties.botToken);
   slackService.setDisplayName(`${properties.baseDisplayName}${statusText}`);
+};
+
+// eslint-disable-next-line no-unused-vars
+const sendFreeTime = (): void => {
+  const getTodayAndOneWeekLater = (): { today: Date; oneWeekLater: Date } => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const oneWeekLater = new Date(today.getTime() + OriginalUtilities.dayToMilliseconds(7));
+
+    return { today, oneWeekLater };
+  };
+
+  const properties = PropertiesServiceWrapper.getProperties();
+  if (typeof properties === "undefined") return;
+
+  const { today, oneWeekLater } = getTodayAndOneWeekLater();
+  const dateFreeHours = CalendarService.getDateFreeHours(today, oneWeekLater, properties.calendarId);
+
+  const text = CalendarService.convertDateFreeHoursToText(dateFreeHours);
+
+  const slackService = new SlackService(properties.tokens, properties.botToken);
+  slackService.chatPostMessage(text, properties.channelId);
 };
