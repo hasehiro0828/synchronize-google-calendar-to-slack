@@ -41,21 +41,26 @@ const main = (): void => {
 
 // eslint-disable-next-line no-unused-vars
 const sendFreeTime = (): void => {
-  const getTodayAndOneWeekLater = (): { today: Date; oneWeekLater: Date } => {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const oneWeekLater = new Date(today.getTime() + OriginalUtilities.dayToMilliseconds(7));
-
-    return { today, oneWeekLater };
-  };
-
   const properties = PropertiesServiceWrapper.getProperties();
   if (typeof properties === "undefined") return;
 
-  const { today, oneWeekLater } = getTodayAndOneWeekLater();
-  const dateFreeHours = CalendarService.getDateFreeHours(today, oneWeekLater, properties.calendarId);
+  let text = "直近１週間の作業時間\n";
+  const now = new Date();
+  for (let i = 0; i < 7; i += 1) {
+    const date = new Date(now.getTime() + OriginalUtilities.dayToMilliseconds(i));
+    const freeHours = CalendarService.getFreeHours(date, properties.calendarId);
+    if (typeof freeHours === "undefined") {
+      Logger.log("freeBusy の取得に失敗しました");
+      return;
+    }
 
-  const text = CalendarService.convertDateFreeHoursToText(dateFreeHours);
+    const freeHoursText = CalendarService.convertFreeHoursToText(freeHours);
+    if (i === 0 && freeHoursText === "🛌") {
+      Logger.log("本日は休暇なので通知をスキップします");
+      return;
+    }
+    text += `${Utilities.formatDate(date, "Asia/Tokyo", "yyyy-MM-dd")}: \`${freeHoursText}\`\n`;
+  }
 
   const slackService = new SlackService(properties.tokens, properties.botToken);
   slackService.chatPostMessage(text, properties.channelId);
