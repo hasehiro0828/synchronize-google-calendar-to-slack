@@ -1,5 +1,6 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-undef */
+import { OriginalUtilities } from "./originalUtilities";
 
 const WORK_START_TIME = {
   hours: 9,
@@ -58,5 +59,5 @@ export namespace CalendarService {
   };
 
   export const convertFreeHoursToText = (freeHours: number): string =>
-    freeHours === WORK_HOURS_WITH_BREAK_TIME ? "🛌" : freeHours.toString();
+    freeHours === WORK_HOURS_WITH_BREAK_TIME ? "🛌" : OriginalUtilities.roundNumber(freeHours, 2).toString();
 }
