@@ -44,8 +44,25 @@ const sendFreeTime = (): void => {
   const properties = PropertiesServiceWrapper.getProperties();
   if (typeof properties === "undefined") return;
 
-  let text = "直近１週間の作業時間\n";
+  const slackService = new SlackService(properties.tokens, properties.botToken);
+
   const now = new Date();
+  if (now.getDay() !== 1) {
+    // 月曜日以外
+    const freeHours = CalendarService.getFreeHours(now, properties.calendarId);
+    if (typeof freeHours === "undefined") {
+      Logger.log("freeBusy の取得に失敗しました");
+      return;
+    }
+
+    const freeHoursText = CalendarService.convertFreeHoursToText(freeHours);
+    if (freeHoursText === "🛌") return;
+
+    slackService.chatPostMessage(`本日の作業時間: \`${freeHoursText}\``, properties.channelId);
+    return;
+  }
+
+  let text = "直近１週間の作業時間\n";
   for (let i = 0; i < 7; i += 1) {
     const date = new Date(now.getTime() + OriginalUtilities.dayToMilliseconds(i));
     const freeHours = CalendarService.getFreeHours(date, properties.calendarId);
@@ -62,6 +79,5 @@ const sendFreeTime = (): void => {
     text += `${Utilities.formatDate(date, "Asia/Tokyo", "yyyy-MM-dd")}: \`${freeHoursText}\`\n`;
   }
 
-  const slackService = new SlackService(properties.tokens, properties.botToken);
   slackService.chatPostMessage(text, properties.channelId);
 };
