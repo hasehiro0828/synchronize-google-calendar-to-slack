@@ -47,7 +47,13 @@ const sendFreeTime = (): void => {
   const slackService = new SlackService(properties.tokens, properties.botToken);
 
   const now = new Date();
-  if (now.getDay() !== 1) {
+  const nowDay = now.getDay() as 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  if (nowDay === 0 || nowDay === 6) {
+    Logger.log("本日は休みなのでスキップします");
+    return;
+  }
+
+  if (nowDay !== 1) {
     // 月曜日以外
     const freeHours = CalendarService.getFreeHours(now, properties.calendarId);
     if (typeof freeHours === "undefined") {
