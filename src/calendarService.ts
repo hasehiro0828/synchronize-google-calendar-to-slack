@@ -1,12 +1,7 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-undef */
+import Constants from "./constants";
 import { OriginalUtilities } from "./originalUtilities";
-
-const WORK_START_TIME = {
-  hours: 9,
-  minutes: 30,
-};
-const WORK_HOURS_WITH_BREAK_TIME = 9;
 
 interface Calendars {
   [calendarId: string]: {
@@ -23,15 +18,15 @@ export namespace CalendarService {
       date.getFullYear(),
       date.getMonth(),
       date.getDate(),
-      WORK_START_TIME.hours,
-      WORK_START_TIME.minutes
+      Constants.WORK_START_TIME.hours,
+      Constants.WORK_START_TIME.minutes
     );
     const timeMaxDate = new Date(
       date.getFullYear(),
       date.getMonth(),
       date.getDate(),
-      WORK_START_TIME.hours + WORK_HOURS_WITH_BREAK_TIME,
-      WORK_START_TIME.minutes
+      Constants.WORK_START_TIME.hours + Constants.WORK_HOURS_WITH_BREAK_TIME,
+      Constants.WORK_START_TIME.minutes
     );
 
     const freeBusyResponse = Calendar.Freebusy?.query({
@@ -55,9 +50,9 @@ export namespace CalendarService {
 
     const busyHours = busyHoursArray.length === 0 ? 0 : busyHoursArray.reduce((prev, current) => prev + current);
 
-    return WORK_HOURS_WITH_BREAK_TIME - busyHours;
+    return Constants.WORK_HOURS_WITH_BREAK_TIME - busyHours;
   };
 
   export const convertFreeHoursToText = (freeHours: number): string =>
-    freeHours === WORK_HOURS_WITH_BREAK_TIME ? "🛌" : OriginalUtilities.roundNumber(freeHours, 2).toString();
+    freeHours === Constants.WORK_HOURS_WITH_BREAK_TIME ? "🛌" : OriginalUtilities.roundNumber(freeHours, 2).toString();
 }
