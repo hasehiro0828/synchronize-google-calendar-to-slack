@@ -65,13 +65,14 @@ const sendFreeTime = (): void => {
   }
 
   if (todayDay !== 1) {
-    // 月曜日以外
+    // 火曜 ~ 金曜
     const freeHoursText = CalendarService.convertFreeHoursToText(todayFreeHours);
     slackService.chatPostMessage(`本日の作業時間: \`${freeHoursText}\``, properties.channelId);
     return;
   }
 
-  let text = "直近１週間の作業時間\n";
+  let sumOfFreeHours = 0;
+  let freeHoursSectionText = "";
   for (let i = 0; i < 7; i += 1) {
     const date = new Date(now.getTime() + OriginalUtilities.dayToMilliseconds(i));
     const freeHours = CalendarService.getFreeHours(date, properties.calendarId);
@@ -81,8 +82,11 @@ const sendFreeTime = (): void => {
     }
 
     const freeHoursText = CalendarService.convertFreeHoursToText(freeHours);
-    text += `${Utilities.formatDate(date, "Asia/Tokyo", "yyyy-MM-dd")}: \`${freeHoursText}\`\n`;
+    sumOfFreeHours += freeHours;
+    freeHoursSectionText += `${Utilities.formatDate(date, "Asia/Tokyo", "yyyy-MM-dd")}: \`${freeHoursText}\`\n`;
   }
+  const roundedSumOfFreeHours = OriginalUtilities.roundNumber(sumOfFreeHours, 1);
+  const text = `今週の作業時間（合計: ${roundedSumOfFreeHours}時間）\n${freeHoursSectionText}`;
 
   slackService.chatPostMessage(text, properties.channelId);
 };
