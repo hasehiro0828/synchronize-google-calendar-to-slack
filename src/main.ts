@@ -2,6 +2,7 @@
 /* eslint-disable no-undef */
 
 import { CalendarService } from "./calendarService";
+import Constants from "./constants";
 import { OriginalUtilities } from "./originalUtilities";
 import { PropertiesServiceWrapper } from "./propertiesService";
 import SlackService from "./slackService";
@@ -47,23 +48,25 @@ const sendFreeTime = (): void => {
   const slackService = new SlackService(properties.tokens, properties.botToken);
 
   const now = new Date();
-  const nowDay = now.getDay() as 0 | 1 | 2 | 3 | 4 | 5 | 6;
-  if (nowDay === 0 || nowDay === 6) {
+  const todayDay = now.getDay() as 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  if (todayDay === 0 || todayDay === 6) {
+    Logger.log("本日は土日なのでスキップします");
+    return;
+  }
+
+  const todayFreeHours = CalendarService.getFreeHours(now, properties.calendarId);
+  if (typeof todayFreeHours === "undefined") {
+    Logger.log("freeBusy の取得に失敗しました");
+    return;
+  }
+  if (todayFreeHours === Constants.WORK_HOURS_WITH_BREAK_TIME) {
     Logger.log("本日は休みなのでスキップします");
     return;
   }
 
-  if (nowDay !== 1) {
+  if (todayDay !== 1) {
     // 月曜日以外
-    const freeHours = CalendarService.getFreeHours(now, properties.calendarId);
-    if (typeof freeHours === "undefined") {
-      Logger.log("freeBusy の取得に失敗しました");
-      return;
-    }
-
-    const freeHoursText = CalendarService.convertFreeHoursToText(freeHours);
-    if (freeHoursText === "🛌") return;
-
+    const freeHoursText = CalendarService.convertFreeHoursToText(todayFreeHours);
     slackService.chatPostMessage(`本日の作業時間: \`${freeHoursText}\``, properties.channelId);
     return;
   }
@@ -78,10 +81,6 @@ const sendFreeTime = (): void => {
     }
 
     const freeHoursText = CalendarService.convertFreeHoursToText(freeHours);
-    if (i === 0 && freeHoursText === "🛌") {
-      Logger.log("本日は休暇なので通知をスキップします");
-      return;
-    }
     text += `${Utilities.formatDate(date, "Asia/Tokyo", "yyyy-MM-dd")}: \`${freeHoursText}\`\n`;
   }
 
