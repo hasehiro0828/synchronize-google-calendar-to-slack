@@ -59,7 +59,7 @@ const sendFreeTime = (): void => {
     Logger.log("freeBusy の取得に失敗しました");
     return;
   }
-  if (todayFreeHours === Constants.WORK_HOURS_WITH_BREAK_TIME) {
+  if (CalendarService.isHoliday(todayFreeHours)) {
     Logger.log("本日は休みなのでスキップします");
     return;
   }
@@ -81,8 +81,9 @@ const sendFreeTime = (): void => {
       return;
     }
 
-    const freeHoursText = CalendarService.convertFreeHoursToText(freeHours);
-    sumOfFreeHours += freeHours;
+    const isHoliday = CalendarService.isHoliday(freeHours);
+    const freeHoursText = isHoliday ? "🛌" : CalendarService.convertFreeHoursToText(freeHours);
+    if (!isHoliday) sumOfFreeHours += freeHours;
     freeHoursSectionText += `${Utilities.formatDate(date, "Asia/Tokyo", "yyyy-MM-dd")}: \`${freeHoursText}\`\n`;
   }
   const roundedSumOfFreeHours = OriginalUtilities.roundNumber(sumOfFreeHours, 1);

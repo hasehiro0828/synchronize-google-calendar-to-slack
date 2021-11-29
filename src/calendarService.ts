@@ -53,6 +53,8 @@ export namespace CalendarService {
     return Constants.WORK_HOURS_WITH_BREAK_TIME - busyHours;
   };
 
+  export const isHoliday = (freeHours: number): boolean => freeHours === Constants.WORK_HOURS_WITH_BREAK_TIME;
+
   export const convertFreeHoursToText = (freeHours: number): string =>
-    freeHours === Constants.WORK_HOURS_WITH_BREAK_TIME ? "🛌" : OriginalUtilities.roundNumber(freeHours, 2).toString();
+    OriginalUtilities.roundNumber(freeHours, 2).toString();
 }
